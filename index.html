@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>CallAsync Function</title>
+	<link rel="stylesheet" href="">
+</head>
+<body>
+	<div>
+		Delayed start - 500 ms!<br><br>
+	</div>
+	<button id="btn">Start</button><br>
+	<ul id="uln"></ul>
+	<script>
+	/*
+	 * callback: success function
+	 * error: error function
+	 * timeout: frunction start timeout
+	 * ...args arguments (arg1, arg2, etc)
+	 */
+	Function.prototype.callAsync = function(success, error, timeout, ...args) {
+	    var asyncFunctionCall = function(Self, args) {
+	        try {
+	            Self.apply(Self, args);
+	            if (typeof success == 'function') success(args);
+	        } catch (e) {
+	            if (typeof error == 'function') error(e);
+	        }
+	    }
+	    setTimeout(asyncFunctionCall.bind(null, this, args), !!timeout ? timeout : 0);
+	    return this;
+	};
+
+	/* Example */
+	
+	var runProcess = false;
+	document.querySelector('button').addEventListener('click', function() {
+	    if (!runProcess) {
+	        runProcess = true;
+	        buildExample();
+	    } else {
+	        this.textContent = 'Start';
+	        console.log('Stopped!')
+	        runProcess = false;
+	    }
+	});
+
+	function buildExample() {
+	    document.querySelector('#uln').innerHTML = '';
+	    (function ge(selUL, selButton, func) {
+	        for (var i = 1; i <= 10000; i++) {
+	            func.callAsync(null, null, 0, document.querySelector(selButton), document.querySelector(selUL), i);
+	        }
+	    }).callAsync(function(args) {
+	        console.log(args)
+	    }, function(e) {
+	        console.log(e)
+	    }, 500, '#uln', '#btn', function(bt, ul, count) {
+	        if (runProcess) {
+	            var li = document.createElement('li');
+	            bt.textContent = count;
+	            li.textContent = count + '-nth item.';
+	            li.style.background = '#' + (Math.random() * 0xFFFFFF << 0).toString(16);
+	            ul.appendChild(li);
+	        }
+	    });
+	}
+	/*
+		Chaining example:
+		function blabla (){
+			...
+		}
+		blabla.callAsync(null, null, 500).callAsync(null, null, 1000).callAsync(null, null, 1500);
+	 */
+	</script>
+</body>
+</html>
