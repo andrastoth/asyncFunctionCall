@@ -1,7 +1,7 @@
 Javascript Async Function Call
 ===============================
 
-Function prototype to call function async mode.
+Function prototype to call function in async mode.
 
 Chainable async function call
 - success, error callbacks
